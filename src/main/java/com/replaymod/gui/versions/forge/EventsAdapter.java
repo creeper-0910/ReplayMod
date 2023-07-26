@@ -13,55 +13,56 @@ import com.replaymod.gui.versions.callbacks.RenderHudCallback;
 
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.event.CustomizeGuiOverlayEvent;
-import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.GuiOpenEvent;
+import net.minecraftforge.client.event.GuiScreenEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EventsAdapter extends EventRegistrations {
-    public static Screen getScreen(ScreenEvent event) {
-        return event.getScreen();
+    public static Screen getScreen(GuiScreenEvent event) {
+        return event.getGui();
     }
 
-    public static Collection<AbstractWidget> getButtonList(ScreenEvent.Init event) {
+    public static Collection<AbstractWidget> getButtonList(GuiScreenEvent.InitGuiEvent event) {
         return Collections2.transform(Collections2.filter(event.getListenersList(), it -> it instanceof AbstractWidget), it -> (AbstractWidget)it);
     }
 
     @SubscribeEvent
-    public void preGuiInit(ScreenEvent.Init.Pre event) {
+    public void preGuiInit(GuiScreenEvent.InitGuiEvent.Pre event) {
         InitScreenCallback.Pre.EVENT.invoker().preInitScreen(getScreen(event));
     }
 
     @SubscribeEvent
-    public void onGuiInit(ScreenEvent.Init.Post event) {
+    public void onGuiInit(GuiScreenEvent.InitGuiEvent.Post event) {
         InitScreenCallback.EVENT.invoker().initScreen(getScreen(event), getButtonList(event));
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onGuiClosed(ScreenEvent.Opening event) {
+    public void onGuiClosed(GuiOpenEvent event) {
         OpenGuiScreenCallback.EVENT.invoker().openGuiScreen(
-                event.getScreen()
+                event.getGui()
         );
     }
 
-    public static float getPartialTicks(CustomizeGuiOverlayEvent event) {
-        return event.getPartialTick();
+    public static float getPartialTicks(RenderGameOverlayEvent event) {
+        return event.getPartialTicks();
     }
 
-    public static float getPartialTicks(ScreenEvent.Render.Post event) {
-        return event.getPartialTick();
+    public static float getPartialTicks(GuiScreenEvent.DrawScreenEvent.Post event) {
+        return event.getRenderPartialTicks();
     }
 
     @SubscribeEvent
-    public void onGuiRender(ScreenEvent.Render.Post event) {
-        PostRenderScreenCallback.EVENT.invoker().postRenderScreen(new PoseStack(), getPartialTicks(event));
+    public void onGuiRender(GuiScreenEvent.DrawScreenEvent.Post event) {
+        PostRenderScreenCallback.EVENT.invoker().postRenderScreen(new MatrixStack(), getPartialTicks(event));
     }
 
     // Even when event was cancelled cause Lunatrius' InGame-Info-XML mod cancels it and we don't actually care about
     // the event (i.e. the overlay text), just about when it's called.
     @SubscribeEvent(receiveCanceled = true)
-    public void renderOverlay(CustomizeGuiOverlayEvent.DebugText event) {
+    public void renderOverlay(RenderGameOverlayEvent.Text event) {
         RenderHudCallback.EVENT.invoker().renderHud(new PoseStack(), getPartialTicks(event));
     }
 

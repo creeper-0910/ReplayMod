@@ -1,5 +1,5 @@
 buildscript {
-    def (major, minor, patch) = '1.19.2-forge'.tokenize('-')[0].tokenize('.')
+    def (major, minor, patch) = '1.18.2-forge'.tokenize('-')[0].tokenize('.')
     def mcVersion = "${major}${minor.padLeft(2, '0')}${(patch ?: '').padLeft(2, '0')}" as int
     def fabric = false
 
@@ -32,15 +32,13 @@ apply plugin: 'eclipse'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 
+
 ext {
     mixinSrg = new File(project.buildDir, 'tmp/mixins/mixins.srg')
     mixinRefMap = new File(project.buildDir, 'tmp/mixins/mixins.replaymod.refmap.json')
 }
 
 compileJava {
-    sourceCompatibility = '17'
-    targetCompatibility = '17'
-
     options.compilerArgs += [
             "-AoutSrgFile=${project.mixinSrg.canonicalPath}",
             "-AoutRefMapFile=${project.mixinRefMap.canonicalPath}",
@@ -52,8 +50,6 @@ mixin {
     add sourceSets.main, "mixins.replaymod.refmap.json"
 }
 
-sourceCompatibility = '17'
-targetCompatibility = '17'
 
 version = project.name + '-' + rootProject.version
 group= "com.replaymod"
@@ -117,7 +113,7 @@ minecraft {
         }
     }
 
-    mappings channel: 'official', version: '1.19.2'
+    mappings channel: 'official', version: '1.18.2'
 }
 
 repositories {
@@ -147,7 +143,7 @@ configurations {
 }
 
 dependencies {
-    def mixinVersion = '0.8.5'
+    def mixinVersion = '0.8.4'
     def shadeExclusions = {
         // Cannot just add these to the shade configuration because they'd be inherited by the compile configuration then
         exclude group: 'com.google.guava', module: 'guava-jdk5'
@@ -155,7 +151,7 @@ dependencies {
         exclude group: 'com.google.code.gson', module: 'gson' // provided by MC
     }
 
-    minecraft 'net.minecraftforge:forge:1.19.2-43.2.8'
+    minecraft 'net.minecraftforge:forge:1.18.2-40.2.0'
 
     annotationProcessor "org.spongepowered:mixin:$mixinVersion"
     compileOnly "org.spongepowered:mixin:$mixinVersion"
@@ -182,9 +178,9 @@ dependencies {
     shadow 'com.github.javagl.JglTF:jgltf-model:3af6de4'
     shadow 'org.aspectj:aspectjrt:1.8.2'
     shadow 'com.github.ReplayMod.JavaBlend:2.79.0:a0696f8'
-    shadow "com.github.ReplayMod:ReplayStudio:a1e2b83", shadeExclusions
+    shadow "com.github.ReplayMod:ReplayStudio:b5539d1", shadeExclusions
     shadow 'com.github.ReplayMod:lwjgl-utils:27dcd66'
-    
+
     // FIXME this should be pulled in by ReplayStudio, and IntelliJ sees it, but javac for some reason does not
     implementation 'com.github.viaversion:opennbt:0a02214' // 2.0-SNAPSHOT (ViaVersion Edition)
 
@@ -327,3 +323,4 @@ processResources {
 }
 
 defaultTasks 'build'
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)

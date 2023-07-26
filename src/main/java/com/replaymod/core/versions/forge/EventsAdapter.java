@@ -9,7 +9,7 @@ import com.replaymod.core.events.PreRenderHandCallback;
 import com.replaymod.gui.utils.EventRegistrations;
 
 import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RenderGuiOverlayEvent;
+import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.event.TickEvent;
@@ -17,13 +17,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 public class EventsAdapter extends EventRegistrations {
     @SubscribeEvent
-    public void onKeyEvent(InputEvent.Key event) {
+    public void onKeyEvent(InputEvent.KeyInputEvent event) {
         KeyBindingEventCallback.EVENT.invoker().onKeybindingEvent();
     }
 
     @SubscribeEvent
-    public void onMouseInput(InputEvent.MouseButton event) {
-    	KeyBindingEventCallback.EVENT.invoker().onKeybindingEvent();
+    public void onMouseInput(InputEvent.MouseInputEvent event) {
+        KeyBindingEventCallback.EVENT.invoker().onKeybindingEvent();
     }
 
     @SubscribeEvent
@@ -40,7 +40,7 @@ public class EventsAdapter extends EventRegistrations {
 
     @SubscribeEvent
     public void renderCameraPath(RenderLevelStageEvent event) {
-        PostRenderWorldCallback.EVENT.invoker().postRenderWorld(new PoseStack());
+        PostRenderWorldCallback.EVENT.invoker().postRenderWorld(new MatrixStack());
     }
 
     @SubscribeEvent
@@ -51,17 +51,16 @@ public class EventsAdapter extends EventRegistrations {
     }
 
     @SubscribeEvent
-    public void preRenderGameOverlay(RenderGuiOverlayEvent.Pre event) {
+    public void preRenderGameOverlay(RenderGameOverlayEvent.Pre event) {
         Boolean result = null;
-        //TODO
-        /*switch (event.getType()) {
+        switch (event.getType()) {
             case CROSSHAIRS:
                 result = RenderSpectatorCrosshairCallback.EVENT.invoker().shouldRenderSpectatorCrosshair();
                 break;
             case HOTBAR:
                 result = RenderHotbarCallback.EVENT.invoker().shouldRenderHotbar();
                 break;
-        }Q*/
+        }
         if (result == Boolean.FALSE) {
             event.setCanceled(true);
         }
